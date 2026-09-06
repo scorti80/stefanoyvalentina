@@ -17,6 +17,7 @@
         <label class="select-photo"><input type="checkbox" name="photo_ids[]" value="{{ $photo->id }}" @checked(in_array($photo->id, $assigned))><span class="selection-mark">✓</span><img src="{{ $photo->preview_url }}" alt="" loading="lazy"><span class="photo-label"><b>{{ $photo->filename }}</b><small>{{ $photo->collection->name }}</small></span></label>
     @endforeach
     </section><div class="pagination">{{ $photos->links() }}</div>
+    <div class="selection-toolbar"><button class="button button-primary" type="submit">Save this page</button></div>
     @else<div class="empty-state admin-panel"><h2>No matching photographs</h2><p>Sync a collection or change the current filters.</p></div>@endif
 </form>
 @endsection
