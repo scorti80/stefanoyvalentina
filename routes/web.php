@@ -37,6 +37,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('playlists', PlaylistController::class)->except('show');
         Route::get('/playlists/{playlist}/photos', [PlaylistController::class, 'photos'])->name('playlists.photos');
         Route::put('/playlists/{playlist}/photos', [PlaylistController::class, 'updatePhotos'])->name('playlists.photos.update');
+        Route::post('/playlists/{playlist}/photos/select-all', [PlaylistController::class, 'selectAllPhotos'])->name('playlists.photos.select-all');
         Route::post('/playlists/{playlist}/rotate', [PlaylistController::class, 'rotate'])->name('playlists.rotate');
         Route::get('/video', [AdminVideoController::class, 'edit'])->name('video.edit');
         Route::put('/video', [AdminVideoController::class, 'update'])->name('video.update');

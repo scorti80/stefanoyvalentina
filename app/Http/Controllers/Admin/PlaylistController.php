@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\Photo;
 use App\Models\Playlist;
 use App\Services\MediaUrl;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -79,9 +80,7 @@ class PlaylistController extends Controller
 
     public function photos(Request $request, Playlist $playlist, MediaUrl $media): View
     {
-        $query = Photo::query()->where('is_active', true)->with('collection')
-            ->when($request->integer('collection'), fn ($query, $id) => $query->where('collection_id', $id))
-            ->when($request->string('search')->toString(), fn ($query, $search) => $query->where('filename', 'like', '%'.$search.'%'))
+        $query = $this->filteredPhotos($request)->with('collection')
             ->orderBy('collection_id')->orderBy('sort_order');
 
         $photos = $query->paginate(48)->withQueryString();
@@ -116,6 +115,24 @@ class PlaylistController extends Controller
         $playlist->photos()->syncWithoutDetaching($selected->mapWithKeys(fn ($id) => [$id => ['position' => $id]])->all());
 
         return back()->with('status', 'Photo selections on this page were saved.');
+    }
+
+    public function selectAllPhotos(Request $request, Playlist $playlist): RedirectResponse
+    {
+        $photoIds = $this->filteredPhotos($request)->pluck('id');
+        $assignedIds = $playlist->photos()->pluck('photos.id');
+        $playlist->photos()->syncWithoutDetaching(
+            $photoIds->diff($assignedIds)->mapWithKeys(fn ($id) => [$id => ['position' => $id]])->all()
+        );
+
+        return back()->with('status', 'All '.$photoIds->count().' photographs matching the current filters are now included in this playlist.');
+    }
+
+    private function filteredPhotos(Request $request): Builder
+    {
+        return Photo::query()->where('is_active', true)
+            ->when($request->integer('collection'), fn ($query, $id) => $query->where('collection_id', $id))
+            ->when($request->string('search')->toString(), fn ($query, $search) => $query->where('filename', 'like', '%'.$search.'%'));
     }
 
     private function validated(Request $request, bool $creating): array
