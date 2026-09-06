@@ -18,7 +18,7 @@ class MediaSyncService
         $hdFiles = $this->imageFiles($disk->allFiles($this->prefix($collection->hd_prefix)));
         $webMap = $this->keyByRelativeName($webFiles, $collection->web_prefix);
         $hdMap = $this->keyByRelativeName($hdFiles, $collection->hd_prefix);
-        $names = collect(array_keys($webMap))->merge(array_keys($hdMap))->unique()->sort()->values();
+        $names = collect(array_keys($webMap))->merge(array_keys($hdMap))->unique()->sort(SORT_NATURAL | SORT_FLAG_CASE)->values();
         $seen = [];
 
         DB::transaction(function () use ($collection, $disk, $names, $webMap, $hdMap, &$seen): void {

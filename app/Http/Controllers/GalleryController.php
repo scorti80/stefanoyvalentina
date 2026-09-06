@@ -28,6 +28,7 @@ class GalleryController extends Controller
         }
 
         $photos = $playlist->photos()
+            ->reorder()->orderBy('photos.collection_id')->orderBy('photos.sort_order')->orderBy('photos.id')
             ->where('photos.is_active', true)
             ->with('collection')
             ->paginate(48)
